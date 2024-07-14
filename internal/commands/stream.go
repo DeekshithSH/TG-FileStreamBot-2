@@ -85,23 +85,31 @@ func sendLink(ctx *ext.Context, u *ext.Update) error {
 	hash := utils.GetShortHash(fullHash)
 	link := fmt.Sprintf("%s/stream/%d?hash=%s", config.ValueOf.Host, messageID, hash)
 	text := []styling.StyledTextOption{styling.Code(link)}
-	row := tg.KeyboardButtonRow{
-		Buttons: []tg.KeyboardButtonClass{
-			&tg.KeyboardButtonURL{
-				Text: "Download",
-				URL:  link + "&d=true",
+	markup := &tg.ReplyInlineMarkup{
+		Rows: []tg.KeyboardButtonRow{{
+			Buttons: []tg.KeyboardButtonClass{
+				&tg.KeyboardButtonURL{
+					Text: "Download",
+					URL:  link + "&d=true",
+				},
 			},
-		},
+		}},
 	}
 	if strings.Contains(file.MimeType, "video") || strings.Contains(file.MimeType, "audio") || strings.Contains(file.MimeType, "pdf") {
-		row.Buttons = append(row.Buttons, &tg.KeyboardButtonURL{
+		markup.Rows[0].Buttons = append(markup.Rows[0].Buttons, &tg.KeyboardButtonURL{
 			Text: "Stream",
 			URL:  link,
 		})
+		markup.Rows = append(markup.Rows, tg.KeyboardButtonRow{
+			Buttons: []tg.KeyboardButtonClass{
+				&tg.KeyboardButtonURL{
+					Text: "Open In VLC",
+					URL:  fmt.Sprintf("%s/vlc/%d?hash=%s", config.ValueOf.Host, messageID, hash),
+				},
+			},
+		})
 	}
-	markup := &tg.ReplyInlineMarkup{
-		Rows: []tg.KeyboardButtonRow{row},
-	}
+	fmt.Println(markup)
 	if strings.Contains(link, "http://localhost") {
 		_, err = ctx.Reply(u, text, &ext.ReplyOpts{
 			NoWebpage:        false,

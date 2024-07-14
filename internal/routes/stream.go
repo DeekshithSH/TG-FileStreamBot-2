@@ -22,6 +22,15 @@ func (e *allRoutes) LoadHome(r *Route) {
 	r.Engine.GET("/stream/:messageID", getStreamRoute)
 }
 
+func (e *allRoutes) LoadVLC(r *Route) {
+	log = e.log.Named("VLC Redirect")
+	defer log.Info("Redirect to VLC")
+	r.Engine.GET("/vlc/:messageID", func(ctx *gin.Context) {
+		ctx.Redirect(http.StatusMovedPermanently,
+			fmt.Sprintf("vlc://%s/stream/%s?hash=%s", ctx.Request.Host, ctx.Param("messageID"), ctx.Query("hash")))
+	})
+}
+
 func getStreamRoute(ctx *gin.Context) {
 	w := ctx.Writer
 	r := ctx.Request
