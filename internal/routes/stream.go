@@ -21,25 +21,38 @@ func (e *allRoutes) LoadHome(r *Route) {
 	log = e.log.Named("Stream")
 	defer log.Info("Loaded stream route")
 	r.Engine.GET("/stream/:messageID", getStreamRoute)
+	r.Engine.GET("/stream/:messageID/:name", getStreamRoute)
 }
 
 func (e *allRoutes) LoadVLC(r *Route) {
 	log = e.log.Named("Player")
 	defer log.Info("Player Route loaded")
 
-	r.Engine.GET("/player/:messageID", func(ctx *gin.Context) {
-		var link string
-		playerType := ctx.Query("player")
-		messageID := ctx.Param("messageID")
-		hash := ctx.Query("hash")
+	r.Engine.GET("/player/:messageID", handlePlayer)
+}
 
-		if playerType == "mxplayer" {
-			link = fmt.Sprintf("intent:%s/stream/%s?hash=%s#Intent;package=com.mxtech.videoplayer.ad;end", config.ValueOf.Host, messageID, hash)
-		} else {
-			link = fmt.Sprintf("vlc://%s/stream/%s?hash=%s", ctx.Request.Host, messageID, hash)
-		}
-		ctx.Redirect(http.StatusMovedPermanently, link)
-	})
+func handlePlayer(ctx *gin.Context) {
+	var link string
+	playerType := ctx.Query("player")
+	messageID := ctx.Param("messageID")
+	hash := ctx.Query("hash")
+	fileName := ctx.Query("name")
+	dl_link := fmt.Sprintf("%s/stream/%s/%s?hash=%s", config.ValueOf.Host, messageID, fileName, hash)
+
+	if playerType == "mxplayer" {
+		link = fmt.Sprintf("intent:%s#Intent;package=com.mxtech.videoplayer.ad;end", dl_link)
+	} else if playerType == "playit" {
+		link = fmt.Sprintf("playit://playerv2/video?url=%s", dl_link)
+	} else if playerType == "s" {
+		link = fmt.Sprintf("intent:%s#Intent;action=com.young.simple.player.playback_online;package=com.young.simple.player;end", dl_link)
+	} else if playerType == "km" {
+		link = fmt.Sprintf("intent:%s#Intent;package=com.kmplayer;end", dl_link)
+	} else if playerType == "hd" {
+		link = fmt.Sprintf("intent:%s#Intent;package=uplayer.video.player;end", dl_link)
+	} else {
+		link = fmt.Sprintf("vlc://%s", dl_link)
+	}
+	ctx.Redirect(http.StatusMovedPermanently, link)
 }
 
 func getStreamRoute(ctx *gin.Context) {

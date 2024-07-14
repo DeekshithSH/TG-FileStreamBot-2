@@ -2,6 +2,7 @@ package commands
 
 import (
 	"fmt"
+	"net/url"
 	"strings"
 
 	"EverythingSuckz/fsb/config"
@@ -104,11 +105,11 @@ func sendLink(ctx *ext.Context, u *ext.Update) error {
 			Buttons: []tg.KeyboardButtonClass{
 				&tg.KeyboardButtonURL{
 					Text: "VLC",
-					URL:  fmt.Sprintf("%s/player/%d?hash=%s&player=%s", config.ValueOf.Host, messageID, hash, "vlc"),
+					URL:  fmt.Sprintf("%s/player/%d?hash=%s&player=%s&name=%s", config.ValueOf.Host, messageID, hash, "vlc", url.QueryEscape(file.FileName)),
 				},
 				&tg.KeyboardButtonURL{
 					Text: "MX Player",
-					URL:  fmt.Sprintf("%s/player/%d?hash=%s&player=%s", config.ValueOf.Host, messageID, hash, "mxplayer"),
+					URL:  fmt.Sprintf("%s/player/%d?hash=%s&player=%s&name=%s", config.ValueOf.Host, messageID, hash, "mxplayer", url.QueryEscape(file.FileName)),
 				},
 			},
 		})
