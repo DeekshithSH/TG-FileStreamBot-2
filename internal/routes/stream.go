@@ -1,6 +1,7 @@
 package routes
 
 import (
+	"EverythingSuckz/fsb/config"
 	"EverythingSuckz/fsb/internal/bot"
 	"EverythingSuckz/fsb/internal/utils"
 	"fmt"
@@ -23,11 +24,21 @@ func (e *allRoutes) LoadHome(r *Route) {
 }
 
 func (e *allRoutes) LoadVLC(r *Route) {
-	log = e.log.Named("VLC Redirect")
-	defer log.Info("Redirect to VLC")
-	r.Engine.GET("/vlc/:messageID", func(ctx *gin.Context) {
-		ctx.Redirect(http.StatusMovedPermanently,
-			fmt.Sprintf("vlc://%s/stream/%s?hash=%s", ctx.Request.Host, ctx.Param("messageID"), ctx.Query("hash")))
+	log = e.log.Named("Player")
+	defer log.Info("Player Route loaded")
+
+	r.Engine.GET("/player/:messageID", func(ctx *gin.Context) {
+		var link string
+		playerType := ctx.Query("player")
+		messageID := ctx.Param("messageID")
+		hash := ctx.Query("hash")
+
+		if playerType == "mxplayer" {
+			link = fmt.Sprintf("intent:%s/stream/%s?hash=%s#Intent;package=com.mxtech.videoplayer.ad;end", config.ValueOf.Host, messageID, hash)
+		} else {
+			link = fmt.Sprintf("vlc://%s/stream/%s?hash=%s", ctx.Request.Host, messageID, hash)
+		}
+		ctx.Redirect(http.StatusMovedPermanently, link)
 	})
 }
 

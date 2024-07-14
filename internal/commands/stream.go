@@ -103,8 +103,12 @@ func sendLink(ctx *ext.Context, u *ext.Update) error {
 		markup.Rows = append(markup.Rows, tg.KeyboardButtonRow{
 			Buttons: []tg.KeyboardButtonClass{
 				&tg.KeyboardButtonURL{
-					Text: "Open In VLC",
-					URL:  fmt.Sprintf("%s/vlc/%d?hash=%s", config.ValueOf.Host, messageID, hash),
+					Text: "VLC",
+					URL:  fmt.Sprintf("%s/player/%d?hash=%s&player=%s", config.ValueOf.Host, messageID, hash, "vlc"),
+				},
+				&tg.KeyboardButtonURL{
+					Text: "MX Player",
+					URL:  fmt.Sprintf("%s/player/%d?hash=%s&player=%s", config.ValueOf.Host, messageID, hash, "mxplayer"),
 				},
 			},
 		})
