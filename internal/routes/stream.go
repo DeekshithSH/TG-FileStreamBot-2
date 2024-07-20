@@ -22,6 +22,8 @@ func (e *allRoutes) LoadHome(r *Route) {
 	defer log.Info("Loaded stream route")
 	r.Engine.GET("/stream/:messageID", getStreamRoute)
 	r.Engine.GET("/stream/:messageID/:name", getStreamRoute)
+	r.Engine.GET("/dl/:messageID", getStreamRoute)
+	r.Engine.GET("/dl/:messageID/:name", getStreamRoute)
 }
 
 func (e *allRoutes) LoadVLC(r *Route) {
@@ -66,11 +68,11 @@ func getStreamRoute(ctx *gin.Context) {
 		return
 	}
 
-	authHash := ctx.Query("hash")
-	if authHash == "" {
-		http.Error(w, "missing hash param", http.StatusBadRequest)
-		return
-	}
+	// authHash := ctx.Query("hash")
+	// if authHash == "" {
+	// 	http.Error(w, "missing hash param", http.StatusBadRequest)
+	// 	return
+	// }
 
 	ctx.Header("Accept-Ranges", "bytes")
 	var start, end int64
@@ -84,16 +86,16 @@ func getStreamRoute(ctx *gin.Context) {
 		return
 	}
 
-	expectedHash := utils.PackFile(
-		file.FileName,
-		file.FileSize,
-		file.MimeType,
-		file.ID,
-	)
-	if !utils.CheckHash(authHash, expectedHash) {
-		http.Error(w, "invalid hash", http.StatusBadRequest)
-		return
-	}
+	// expectedHash := utils.PackFile(
+	// 	file.FileName,
+	// 	file.FileSize,
+	// 	file.MimeType,
+	// 	file.ID,
+	// )
+	// if !utils.CheckHash(authHash, expectedHash) {
+	// 	http.Error(w, "invalid hash", http.StatusBadRequest)
+	// 	return
+	// }
 
 	if rangeHeader == "" {
 		start = 0
